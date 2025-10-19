@@ -11,7 +11,7 @@ def get_flower_dataloaders(
     img_size: int = 128,
     num_workers: int = 2,
 ) -> tuple[DataLoader, DataLoader]:
-    """Create dataloaders for flower classification dataset.
+    """Create dataloaders for the Flower102 classification dataset.
 
     Args:
         data_dir (str, optional): _description_. Path where the data is stored. Defaults to "../data/raw".

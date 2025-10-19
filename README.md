@@ -4,4 +4,4 @@ The repository for assignment 4-hypertuning-ray for the Portfolio-Marcello-Wienh
 ## Used dataset
 
 The dataset used in this repository can be found in the 
-[**Flowers Recognition Dataset on Kaggle**](https://www.kaggle.com/datasets/alxmamaev/flowers-recognition).
+[**Flowers Recognition Dataset on Kaggle**](https://www.kaggle.com/datasets/alxmamaev/flowers-recognition). The dataset used is the Flower102 classification dataset.
