@@ -1,7 +1,12 @@
 [project]
 name = "hypertuning-ray-marcello-wienhoven"
 version = "0.1.0"
-description = "Add your description here"
+description = "A flower classification model with hypertuning using Ray Tune."
+authors = [{ name = "Marcello Wienhoven" }]
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "torch",
+    "torchvision",
+    "loguru",
+]
