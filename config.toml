@@ -1,6 +1,6 @@
 [data]
 data_dir = "./data/raw"
-batch_size = 32
+batch_size = 16
 val_split = 0.2
 img_size = 128
 num_workers = 2
@@ -17,14 +17,14 @@ dropout = 0.5
 
 [train]
 learning_rate = 0.001
-epochs = 20
+epochs = 3
 optimizer = "adam"
-train_steps = 0
-valid_steps = 0
+train_steps = 20
+valid_steps = 10
 logdir = "logs"
 
 [logging]
 logdir = "logs"
 checkpoint_dir = "models"
 save_interval = 5
-report_types = ["TOML, MLFLOW"]
+report_types = ["TOML", "MLFLOW"]

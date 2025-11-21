@@ -1,10 +1,8 @@
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split, ConcatDataset
-from pathlib import Path
-from loguru import logger
 
 
-def get_flower_dataloaders(config) -> tuple[DataLoader, DataLoader]:
+def get_flower_dataloaders(config) -> tuple[DataLoader, DataLoader, DataLoader]:
     """Create dataloaders for the Flower102 classification dataset.
 
     Args:
@@ -17,11 +15,16 @@ def get_flower_dataloaders(config) -> tuple[DataLoader, DataLoader]:
     Returns:
         tuple[DataLoader, DataLoader]: _description_. Train and validation dataloaders.
     """
-    data_cfg = config["data"]
+
+    data_dir = config["data_dir"]
+    batch_size = config["batch_size"]
+    val_split = config["val_split"]
+    img_size = config["img_size"]
+    num_workers = config["num_workers"]
 
     transform = transforms.Compose(
         [
-            transforms.Resize((data_cfg["img_size"], data_cfg["img_size"])),
+            transforms.Resize((img_size, img_size)),
             transforms.ToTensor(),
             transforms.Normalize(
                 mean=[0.485, 0.456, 0.406],
@@ -30,8 +33,6 @@ def get_flower_dataloaders(config) -> tuple[DataLoader, DataLoader]:
         ]
     )
 
-    data_dir = Path(data_cfg["data_dir"])
-
     # Load all splits
     ds_train = datasets.Flowers102(root=data_dir, split="train", transform=transform)
     ds_val = datasets.Flowers102(root=data_dir, split="val", transform=transform)
@@ -39,7 +40,7 @@ def get_flower_dataloaders(config) -> tuple[DataLoader, DataLoader]:
 
     # Combine train + val for our own train/val split
     full_train_set = ConcatDataset([ds_train, ds_val])
-    train_len = int(len(full_train_set) * data_cfg["val_split"])
+    train_len = int(len(full_train_set) * val_split)
     real_train_len = len(full_train_set) - train_len
 
     train_ds, val_ds = random_split(full_train_set, [real_train_len, train_len])
@@ -49,21 +50,21 @@ def get_flower_dataloaders(config) -> tuple[DataLoader, DataLoader]:
 
     train_loader = DataLoader(
         train_ds,
-        batch_size=data_cfg["batch_size"],
+        batch_size=batch_size,
         shuffle=True,
-        num_workers=data_cfg["num_workers"],
+        num_workers=num_workers,
     )
     val_loader = DataLoader(
         val_ds,
-        batch_size=data_cfg["batch_size"],
+        batch_size=batch_size,
         shuffle=False,
-        num_workers=data_cfg["num_workers"],
+        num_workers=num_workers,
     )
     test_loader = DataLoader(
         test_ds,
-        batch_size=data_cfg["batch_size"],
+        batch_size=batch_size,
         shuffle=False,
-        num_workers=data_cfg["num_workers"],
+        num_workers=num_workers,
     )
 
     return train_loader, val_loader, test_loader

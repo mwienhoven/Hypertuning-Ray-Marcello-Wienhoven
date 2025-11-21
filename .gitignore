@@ -208,3 +208,6 @@ __marimo__/
 
 # raw data files
 data/raw/
+
+# logs
+logs/

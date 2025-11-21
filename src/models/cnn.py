@@ -10,7 +10,7 @@ class CNN(nn.Module):
         units1: int,
         units2: int,
         input_size: tuple,
-        num_classes: int = 10,
+        num_classes: int = 102,
     ) -> None:
         super().__init__()
         self.in_channels = input_size[1]  # input_size: (batch, channels, height, width)
