@@ -1,13 +1,21 @@
 [project]
 name = "hypertuning-ray-marcello-wienhoven"
 version = "0.1.0"
-description = "A flower classification model with hypertuning using Ray Tune."
-authors = [{ name = "Marcello Wienhoven" }]
+description = "A flower classification model with hypertuning (without Ray on Windows)."
+authors = [
+    { name = "Marcello Wienhoven", email = "M.Wienhoven@student.han.nl" }
+]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11,<3.12"
+
 dependencies = [
-    "torch",
-    "torchvision",
-    "loguru",
-    "scipy",
+    "torch>=2.0.1",
+    "torchvision>=0.15.2",
+    "loguru>=0.7.0",
+    "scipy>=1.11.1",
+    "mltrainer>=0.2.4",
+    "tensorboard>=2.15.1",
+    "matplotlib>=3.7.1",
+    "pandas>=2.0.3",
+    "torchinfo>=1.8.0"
 ]
