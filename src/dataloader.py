@@ -96,9 +96,12 @@ if __name__ == "__main__":
     # Create dataloaders
     try:
         logger.info("🚚 Creating dataloaders...")
-        train_loader, val_loader = get_flower_dataloaders(data_dir=str(data_dir))
+        train_loader, val_loader, test_loader = get_flower_dataloaders(
+            data_dir=str(data_dir)
+        )
         logger.info(f"Train samples: {len(train_loader.dataset)}")
         logger.info(f"Validation samples: {len(val_loader.dataset)}")
+        logger.info(f"Test samples: {len(test_loader.dataset)}")
     except Exception as e:
         logger.error(f"❌ Could not create dataloaders: {e}")
         raise
