@@ -2,7 +2,7 @@
 data_dir = "./data/raw"
 batch_size = 16
 val_split = 0.2
-img_size = 128
+img_size = 64
 num_workers = 2
 
 [model]

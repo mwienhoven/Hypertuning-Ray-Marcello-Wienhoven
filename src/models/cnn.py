@@ -44,7 +44,9 @@ class CNN(nn.Module):
         # Fully connected block
         self.fc = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(filters, units1),
+            nn.Linear(
+                filters * activation_map_size[0] * activation_map_size[1], units1
+            ),
             nn.ReLU(),
             nn.Linear(units1, units2),
             nn.ReLU(),
