@@ -5,7 +5,7 @@ from loguru import logger
 
 
 def get_flower_dataloaders(
-    data_dir: str = "../data/raw",
+    data_dir: str = "./data/raw",
     batch_size: int = 32,
     val_split: float = 0.2,
     img_size: int = 128,
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     # Make sure data directory exists
     try:
         logger.info("📁 Ensuring data directory exists...")
-        data_dir = Path("../data/raw")
+        data_dir = Path("./data/raw")
         data_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"✅ Data directory exists: {data_dir}")
     except Exception as e:
