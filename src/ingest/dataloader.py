@@ -18,7 +18,8 @@ def get_flower_dataloaders(config) -> tuple[DataLoader, DataLoader, DataLoader]:
 
     data_dir = config["data_dir"]
     batch_size = config["batch_size"]
-    val_split = config["val_split"]
+    val_split = config.get("val_split", 0.2)
+    test_split = config.get("test_split", 0.2)
     img_size = config["img_size"]
     num_workers = config["num_workers"]
 
@@ -38,33 +39,31 @@ def get_flower_dataloaders(config) -> tuple[DataLoader, DataLoader, DataLoader]:
     ds_val = datasets.Flowers102(root=data_dir, split="val", transform=transform)
     ds_test = datasets.Flowers102(root=data_dir, split="test", transform=transform)
 
-    # Combine train + val for our own train/val split
-    full_train_set = ConcatDataset([ds_train, ds_val])
-    train_len = int(len(full_train_set) * val_split)
-    real_train_len = len(full_train_set) - train_len
+    # Combine train+val for custom splitting
+    full_train_val = ConcatDataset([ds_train, ds_val])
+    n_total = len(full_train_val)
 
-    train_ds, val_ds = random_split(full_train_set, [real_train_len, train_len])
+    # Compute sizes
+    n_test = int(len(ds_test) * test_split) if test_split > 0 else len(ds_test)
+    n_train_val = n_total
+    n_val = int(n_train_val * val_split)
+    n_train = n_train_val - n_val
 
-    # Test set stays separate
-    test_ds = ds_test
+    # Safety check
+    if n_train + n_val != n_train_val:
+        n_val = n_train_val - n_train
+
+    # Split train/val
+    train_ds, val_ds = random_split(full_train_val, [n_train, n_val])
 
     train_loader = DataLoader(
-        train_ds,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=num_workers,
+        train_ds, batch_size=batch_size, shuffle=True, num_workers=num_workers
     )
     val_loader = DataLoader(
-        val_ds,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers,
+        val_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers
     )
     test_loader = DataLoader(
-        test_ds,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers,
+        ds_test, batch_size=batch_size, shuffle=False, num_workers=num_workers
     )
 
     return train_loader, val_loader, test_loader

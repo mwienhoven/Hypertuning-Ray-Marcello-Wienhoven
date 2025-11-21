@@ -36,7 +36,7 @@ def main() -> None:
     # Create dataloaders
     try:
         logger.info("🚚 Creating dataloaders...")
-        train_loader, val_loader, test_loader = get_flower_dataloaders(config=config)
+        train_loader, val_loader, test_loader = get_flower_dataloaders(config=data_cfg)
         logger.info(f"🔢 Train samples: {len(train_loader.dataset)}")
         logger.info(f"🔢 Validation samples: {len(val_loader.dataset)}")
         logger.info(f"🔢 Test samples: {len(test_loader.dataset)}")

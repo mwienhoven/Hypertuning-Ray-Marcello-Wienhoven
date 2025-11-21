@@ -1,7 +1,8 @@
 [data]
 data_dir = "./data/raw"
 batch_size = 16
-val_split = 0.2
+val_split = 0.05
+test_split = 0.1
 img_size = 64
 num_workers = 2
 
