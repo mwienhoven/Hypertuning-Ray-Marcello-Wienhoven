@@ -4,17 +4,17 @@ from pathlib import Path
 from loguru import logger
 from mltrainer import metrics, Trainer, TrainerSettings, ReportTypes
 from mltrainer.imagemodels import CNNConfig, CNNblocks
-from config import load_config
-from src.data import get_flower_dataloaders
+from src.config import load_config
+from src.dataloader import get_flower_dataloaders
 
 
 def main() -> None:
     # --- Load config ---
     cfg = load_config("config.toml")
-
     data_cfg = cfg["data"]
     train_cfg = cfg["train"]
     model_cfg = cfg["model"]
+    log_cfg = cfg.get("logging", {})
 
     # --- Dataloaders ---
     train_loader, val_loader = get_flower_dataloaders(
@@ -25,7 +25,7 @@ def main() -> None:
         num_workers=data_cfg["num_workers"],
     )
     logger.info(
-        f"Train samples: {len(train_loader.dataset)}, Val samples: {len(val_loader.dataset)}"
+        f"🔢 Train samples: {len(train_loader.dataset)}, Val samples: {len(val_loader.dataset)}"
     )
 
     # --- Device ---
@@ -41,12 +41,13 @@ def main() -> None:
         maxpool=model_cfg.get("maxpool", 2),
         num_layers=model_cfg.get("num_layers", 3),
         num_classes=model_cfg["num_classes"],
+        dropout=model_cfg.get("dropout", 0.0),
     )
 
     # --- Model ---
     model = CNNblocks(cnn_config)
     model.to(device)
-    logger.info(f"Model initialized with config: {cnn_config}")
+    logger.info(f"✅ Model initialized with config: {cnn_config}")
 
     # --- Loss, optimizer, metrics ---
     loss_fn = torch.nn.CrossEntropyLoss()
@@ -54,13 +55,23 @@ def main() -> None:
     accuracy = metrics.Accuracy()
 
     # --- Trainer settings ---
+    logdir = Path(log_cfg.get("logdir", "logs"))
+    checkpoint_dir = Path(log_cfg.get("checkpoint_dir", "models"))
+    save_interval = log_cfg.get("save_interval", 5)
+    report_types = [
+        getattr(ReportTypes, rt) if isinstance(rt, str) else rt
+        for rt in log_cfg.get("report_types", ["TOML"])
+    ]
+
     settings = TrainerSettings(
         epochs=train_cfg["epochs"],
         metrics=[accuracy],
-        logdir=Path(train_cfg.get("logdir", "logs")),
-        train_steps=None,  # None = full epoch
+        logdir=logdir,
+        train_steps=None,
         valid_steps=None,
-        reporttypes=[ReportTypes.TOML],
+        save_interval=save_interval,
+        reporttypes=report_types,
+        checkpoint_dir=checkpoint_dir,
     )
 
     # --- Trainer ---
@@ -79,10 +90,10 @@ def main() -> None:
     trainer.loop()
 
     # --- Save final model ---
-    save_path = Path("models") / "cnn_flowers102.pt"
-    save_path.parent.mkdir(exist_ok=True)
-    torch.save(model.state_dict(), save_path)
-    logger.info(f"✅ Model saved to {save_path}")
+    final_model_path = checkpoint_dir / "cnn_flowers102_final.pt"
+    checkpoint_dir.mkdir(exist_ok=True)
+    torch.save(model.state_dict(), final_model_path)
+    logger.info(f"✅ Final model saved to {final_model_path}")
 
 
 if __name__ == "__main__":

@@ -10,8 +10,21 @@ filters = 64
 units1 = 512
 units2 = 256
 num_classes = 102
+kernel_size = 3
+maxpool = 2
+num_layers = 3
+dropout = 0.5
 
 [train]
 learning_rate = 0.001
 epochs = 20
 optimizer = "adam"
+train_steps = 0
+valid_steps = 0
+logdir = "logs"
+
+[logging]
+logdir = "logs"
+checkpoint_dir = "models"
+save_interval = 5
+report_types = ["TOML, MLFLOW"]

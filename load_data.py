@@ -3,7 +3,7 @@ from loguru import logger
 from torchvision import datasets
 
 from src.config import load_config
-from src.dataloader import get_flower_dataloaders
+from src.ingest.dataloader import get_flower_dataloaders
 
 
 def main() -> None:
