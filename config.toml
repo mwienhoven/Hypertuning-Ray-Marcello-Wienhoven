@@ -5,6 +5,12 @@ val_split = 0.2
 img_size = 128
 num_workers = 2
 
+[model]
+filters = 64
+units1 = 512
+units2 = 256
+num_classes = 102
+
 [train]
 learning_rate = 0.001
 epochs = 20
