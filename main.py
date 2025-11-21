@@ -1,16 +1,23 @@
+from pathlib import Path
 from loguru import logger
 from torchvision import datasets
-from pathlib import Path
+
+from src.config import load_config
 from src.dataloader import get_flower_dataloaders
 
 
 def main() -> None:
+    # Load config
+    logger.info("📖 Loading config...")
+    config = load_config()
+    data_cfg = config["data"]
+
     # Ensure data directory exists
+    data_dir = Path(data_cfg["data_dir"])
     try:
-        logger.info("📁 Ensuring data directory exists...")
-        data_dir = Path("data/raw")
+        logger.info(f"📁 Ensuring data directory exists at: {data_dir}")
         data_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"✅ Data directory exists: {data_dir}")
+        logger.info("✅ Data directory ready")
     except Exception as e:
         logger.error(f"❌ Could not create data directory: {e}")
         raise
@@ -29,9 +36,10 @@ def main() -> None:
     # Create dataloaders
     try:
         logger.info("🚚 Creating dataloaders...")
-        train_loader, val_loader = get_flower_dataloaders(data_dir=str(data_dir))
-        logger.info(f"Train samples: {len(train_loader.dataset)}")
-        logger.info(f"Validation samples: {len(val_loader.dataset)}")
+        train_loader, val_loader, test_loader = get_flower_dataloaders(config=config)
+        logger.info(f"🔢 Train samples: {len(train_loader.dataset)}")
+        logger.info(f"🔢 Validation samples: {len(val_loader.dataset)}")
+        logger.info(f"🔢 Test samples: {len(test_loader.dataset)}")
     except Exception as e:
         logger.error(f"❌ Could not create dataloaders: {e}")
         raise

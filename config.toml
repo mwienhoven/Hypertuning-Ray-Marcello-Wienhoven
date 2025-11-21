@@ -1,0 +1,11 @@
+[data]
+data_dir = "./data/raw"
+batch_size = 32
+val_split = 0.2
+img_size = 128
+num_workers = 2
+
+[train]
+learning_rate = 0.001
+epochs = 20
+optimizer = "adam"

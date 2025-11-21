@@ -4,13 +4,7 @@ from pathlib import Path
 from loguru import logger
 
 
-def get_flower_dataloaders(
-    data_dir: str = "./data/raw",
-    batch_size: int = 32,
-    val_split: float = 0.2,
-    img_size: int = 128,
-    num_workers: int = 2,
-) -> tuple[DataLoader, DataLoader]:
+def get_flower_dataloaders(config) -> tuple[DataLoader, DataLoader]:
     """Create dataloaders for the Flower102 classification dataset.
 
     Args:
@@ -23,10 +17,11 @@ def get_flower_dataloaders(
     Returns:
         tuple[DataLoader, DataLoader]: _description_. Train and validation dataloaders.
     """
+    data_cfg = config["data"]
 
     transform = transforms.Compose(
         [
-            transforms.Resize((img_size, img_size)),
+            transforms.Resize((data_cfg["img_size"], data_cfg["img_size"])),
             transforms.ToTensor(),
             transforms.Normalize(
                 mean=[0.485, 0.456, 0.406],
@@ -35,25 +30,43 @@ def get_flower_dataloaders(
         ]
     )
 
-    # Load the predefined splits
-    train_set = datasets.Flowers102(root=data_dir, split="train", transform=transform)
-    val_set = datasets.Flowers102(root=data_dir, split="val", transform=transform)
+    data_dir = Path(data_cfg["data_dir"])
 
-    # Combine train + val and resplit using val_split
-    full_dataset = ConcatDataset([train_set, val_set])
+    # Load all splits
+    ds_train = datasets.Flowers102(root=data_dir, split="train", transform=transform)
+    ds_val = datasets.Flowers102(root=data_dir, split="val", transform=transform)
+    ds_test = datasets.Flowers102(root=data_dir, split="test", transform=transform)
 
-    val_size = int(len(full_dataset) * val_split)
-    train_size = len(full_dataset) - val_size
+    # Combine train + val for our own train/val split
+    full_train_set = ConcatDataset([ds_train, ds_val])
+    train_len = int(len(full_train_set) * data_cfg["val_split"])
+    real_train_len = len(full_train_set) - train_len
 
-    train_ds, val_ds = random_split(full_dataset, [train_size, val_size])
+    train_ds, val_ds = random_split(full_train_set, [real_train_len, train_len])
+
+    # Test set stays separate
+    test_ds = ds_test
 
     train_loader = DataLoader(
-        train_ds, batch_size=batch_size, shuffle=True, num_workers=num_workers
+        train_ds,
+        batch_size=data_cfg["batch_size"],
+        shuffle=True,
+        num_workers=data_cfg["num_workers"],
+    )
+    val_loader = DataLoader(
+        val_ds,
+        batch_size=data_cfg["batch_size"],
+        shuffle=False,
+        num_workers=data_cfg["num_workers"],
+    )
+    test_loader = DataLoader(
+        test_ds,
+        batch_size=data_cfg["batch_size"],
+        shuffle=False,
+        num_workers=data_cfg["num_workers"],
     )
 
-    val_loader = DataLoader(
-        val_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers
-    )
+    return train_loader, val_loader, test_loader
 
     return train_loader, val_loader
 
