@@ -3,25 +3,25 @@ data_dir = "./data/cifar10"
 batch_size = 32
 val_split = 0.2
 test_split = 1
-img_size = 128
-num_workers = 0
+img_size = 32
+num_workers = 2
 
 [model]
 filters = 64
 units1 = 128
 units2 = 64
-num_classes = 102
+num_classes = 10
 kernel_size = 3
 maxpool = 2
 num_layers = 3
 dropout = 0.2
 
 [train]
-learning_rate = 0.01
-epochs = 1
+learning_rate = 0.001
+epochs = 5
 optimizer = "adam"
-train_steps = 32
-valid_steps = 32
+train_steps = None
+valid_steps = None
 logdir = "logs"
 
 [logging]
