@@ -5,6 +5,17 @@ from mltrainer.imagemodels import CNNConfig, CNNblocks
 def build_model(
     img_size: int, batch_size: int, model_cfg: dict, device: torch.device
 ) -> tuple[CNNblocks, CNNConfig]:
+    """Building the model with the configurations
+
+    Args:
+        img_size (int): Pixel size of the image
+        batch_size (int): Batch size in which the samples are loaded
+        model_cfg (dict): Configuration dictionary for the model
+        device (torch.device): Type of device to use (CPU or GPU)
+
+    Returns:
+        tuple[CNNblocks, CNNConfig]: The built model and its configuration
+    """
     cnn_config = CNNConfig(
         matrixshape=(img_size, img_size),
         batchsize=batch_size,

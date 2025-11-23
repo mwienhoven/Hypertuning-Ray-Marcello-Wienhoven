@@ -10,8 +10,19 @@ from src.training.model import build_model
 
 def objective(
     params: dict, data_cfg: dict, model_cfg: dict, train_cfg: dict, log_cfg: dict
-):
-    """Train a model with given hyperparameters and log everything to MLflow."""
+) -> dict:
+    """Objective function for training the model
+
+    Args:
+        params (dict): Parameters of the model
+        data_cfg (dict): Data configuration parameters
+        model_cfg (dict): Model configuration parameters
+        train_cfg (dict): Training configuration parameters
+        log_cfg (dict): Logging configuration parameters
+
+    Returns:
+        dict: Dictionary containing loss and status
+    """
 
     modeldir = Path(log_cfg.get("checkpoint_dir", "models"))
     modeldir.mkdir(parents=True, exist_ok=True)

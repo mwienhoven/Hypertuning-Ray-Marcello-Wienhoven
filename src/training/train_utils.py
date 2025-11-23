@@ -1,18 +1,32 @@
 from pathlib import Path
 import torch
 from mltrainer import Trainer, TrainerSettings, metrics, ReportTypes
+from torch.utils.data import DataLoader
 
 
 def create_trainer(
     model: torch.nn.Module,
-    train_loader,
-    val_loader,
+    train_loader: DataLoader,
+    val_loader: DataLoader,
     train_cfg: dict,
     log_cfg: dict = None,
     device: str = "cpu",
     logdir: Path = None,
 ) -> Trainer:
-    """Configure MLTrainer trainer with given model and loaders using config."""
+    """Create the trainer to train the model
+
+    Args:
+        model (torch.nn.Module): The model to be trained
+        train_loader (DataLoader): Dataloader for training data
+        val_loader (DataLoader): Dataloader for validation data
+        train_cfg (dict): Training configuration parameters
+        log_cfg (dict): Logging configuration parameters. Defaults to None.
+        device (str): The type of device to use (CPU or GPU). Defaults to "cpu".
+        logdir (Path): Path where the logs will be written. Defaults to None.
+
+    Returns:
+        Trainer: Trainer object for training the model
+    """
     if log_cfg is None:
         log_cfg = {}
 
@@ -21,7 +35,6 @@ def create_trainer(
 
     acc = metrics.Accuracy()
 
-    # Haal steps uit config; zet 0 om naar None zodat alle batches gebruikt worden
     train_steps = train_cfg.get("train_steps", 0)
     valid_steps = train_cfg.get("valid_steps", 0)
     train_steps = (

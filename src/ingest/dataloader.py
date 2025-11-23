@@ -3,8 +3,13 @@ from torch.utils.data import DataLoader, random_split
 
 
 def get_cifar10_dataloaders(config) -> tuple[DataLoader, DataLoader, DataLoader]:
-    """
-    Create dataloaders for the CIFAR-10 dataset.
+    """Obtain the dataloaders for the CIFAR-10 dataset
+
+    Args:
+        config (dict): Dictionary containing data configuration parameters.
+
+    Returns:
+        tuple[DataLoader, DataLoader, DataLoader]: Dataloaders for train, validation and test set.
     """
 
     data_dir = config["data_dir"]
