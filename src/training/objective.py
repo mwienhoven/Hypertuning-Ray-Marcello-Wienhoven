@@ -31,8 +31,8 @@ def objective(
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     with mlflow.start_run():
-        mlflow.set_tag("model", "test")
-        mlflow.set_tag("dev", "marcello")
+        mlflow.set_tag("model", log_cfg.get("experiment_name", "default_experiment"))
+        mlflow.set_tag("dev", log_cfg.get("developer", "unknown"))
         mlflow.log_params(params)
         mlflow.log_param("batch_size", batch_size)
 

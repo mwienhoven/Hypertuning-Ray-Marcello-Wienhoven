@@ -545,6 +545,7 @@ dependencies = [
     { name = "pandas" },
     { name = "scipy" },
     { name = "tensorboard" },
+    { name = "toml" },
     { name = "torch" },
     { name = "torchinfo" },
     { name = "torchvision" },
@@ -558,6 +559,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.0.3" },
     { name = "scipy", specifier = ">=1.11.1" },
     { name = "tensorboard", specifier = ">=2.15.1" },
+    { name = "toml", specifier = ">=0.10.2" },
     { name = "torch", specifier = ">=2.0.1" },
     { name = "torchinfo", specifier = ">=1.8.0" },
     { name = "torchvision", specifier = ">=0.15.2" },
@@ -1671,6 +1673,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/b7/4d/08c89e34946fce2aec4fbb45c9016efd5f4d7f24af8e5d93296e935631d8/threadpoolctl-3.6.0.tar.gz", hash = "sha256:8ab8b4aa3491d812b623328249fab5302a68d2d71745c8a4c719a2fcaba9f44e", size = 21274 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/32/d5/f9a850d79b0851d1d4ef6456097579a9005b31fea68726a4ae5f2d82ddd9/threadpoolctl-3.6.0-py3-none-any.whl", hash = "sha256:43a0b8fd5a2928500110039e43a5eed8480b918967083ea48dc3ab9f13c4a7fb", size = 18638 },
+]
+
+[[package]]
+name = "toml"
+version = "0.10.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/be/ba/1f744cdc819428fc6b5084ec34d9b30660f6f9daaf70eead706e3203ec3c/toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f", size = 22253 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b", size = 16588 },
 ]
 
 [[package]]

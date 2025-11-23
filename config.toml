@@ -17,8 +17,8 @@ num_layers = 3
 dropout = 0.2
 
 [train]
-learning_rate = 0.001
-epochs = 5
+learning_rate = 0.01
+epochs = 1
 optimizer = "adam"
 train_steps = 32
 valid_steps = 32
@@ -29,3 +29,5 @@ logdir = "logs"
 checkpoint_dir = "models"
 save_interval = 1
 report_types = ["TOML", "MLFLOW"]
+experiment_name = "developing still"
+developer = "Marcello"
