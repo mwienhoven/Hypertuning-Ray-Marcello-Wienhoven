@@ -10,10 +10,14 @@ def create_trainer(
     train_cfg: dict,
     log_cfg: dict = None,
     device: str = "cpu",
+    logdir: Path = None,
 ) -> Trainer:
     """Configure MLTrainer trainer with given model and loaders using config."""
     if log_cfg is None:
         log_cfg = {}
+
+    if logdir is None:
+        logdir = Path(log_cfg.get("logdir", "logs"))
 
     acc = metrics.Accuracy()
 
@@ -26,7 +30,7 @@ def create_trainer(
     settings = TrainerSettings(
         epochs=train_cfg["epochs"],
         metrics=[acc],
-        logdir=Path(log_cfg.get("logdir", "logs")),
+        logdir=logdir,
         train_steps=train_steps,
         valid_steps=valid_steps,
         reporttypes=[ReportTypes.TOML, ReportTypes.MLFLOW],

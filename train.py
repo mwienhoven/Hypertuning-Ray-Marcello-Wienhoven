@@ -83,6 +83,7 @@ def main() -> None:
             train_cfg=train_cfg,
             log_cfg=log_cfg,
             device=device,
+            logdir=run_logdir,
         )
 
         # ---- Training loop ----
