@@ -21,11 +21,15 @@ def create_trainer(
 
     acc = metrics.Accuracy()
 
-    # Haal steps uit config, zet 0 om naar None
+    # Haal steps uit config; zet 0 om naar None zodat alle batches gebruikt worden
     train_steps = train_cfg.get("train_steps", 0)
     valid_steps = train_cfg.get("valid_steps", 0)
-    train_steps = None if train_steps == 0 else train_steps
-    valid_steps = None if valid_steps == 0 else valid_steps
+    train_steps = (
+        None if (train_steps == 0 or train_steps is None) else int(train_steps)
+    )
+    valid_steps = (
+        None if (valid_steps == 0 or valid_steps is None) else int(valid_steps)
+    )
 
     settings = TrainerSettings(
         epochs=train_cfg["epochs"],
