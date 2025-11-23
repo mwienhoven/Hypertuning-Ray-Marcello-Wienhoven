@@ -4,7 +4,7 @@ batch_size = 32
 val_split = 0.2
 test_split = 1
 img_size = 32
-num_workers = 2
+num_workers = 0
 
 [model]
 filters = 64
@@ -18,10 +18,10 @@ dropout = 0.2
 
 [train]
 learning_rate = 0.001
-epochs = 5
+epochs = 4
 optimizer = "adam"
-train_steps = 150 
-valid_steps = 30
+train_steps = 50
+valid_steps = 20
 logdir = "logs"
 
 [logging]
@@ -29,5 +29,5 @@ logdir = "logs"
 checkpoint_dir = "models"
 save_interval = 1
 report_types = ["TOML", "MLFLOW"]
-experiment_name = "developing still"
+experiment_name = "testing"
 developer = "Marcello"

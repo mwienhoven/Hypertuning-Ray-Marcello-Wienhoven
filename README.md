@@ -14,5 +14,14 @@ mlflow server --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 50
 ```
 
 ## Report
-### Flowers102 dataset
+### Flowers102 dataset (beginning of the project)
 In the beginning of developing the code for the assignment, I relied on the Flowers102 dataset, which can be found on [**Flowers Recognition**](https://www.kaggle.com/datasets/alxmamaev/flowers-recognition). More info can also be found on [**102 Category Flower Dataset**](https://www.robots.ox.ac.uk/~vgg/data/flowers/102/). This dataset contains 102 classes, and each class contains of between 40 and 258 images (samples). The CNN used in this research just could not perform on this dataset, this dataset is too complex for the simple CNN structure. This is the reason I switched to the CIFAR-10 dataset.
+
+### Loading the data
+The data can be loaded with the command 
+
+```bash
+uv run load_data.py
+```
+
+The data is downloaded with a batch size of 32, and validation split of 0.2. This results in 40000 training samples, 10000 validation samples, and 10000 test samples.
