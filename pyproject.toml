@@ -17,5 +17,5 @@ dependencies = [
     "tensorboard>=2.15.1",
     "matplotlib>=3.7.1",
     "pandas>=2.0.3",
-    "torchinfo>=1.8.0"
+    "torchinfo>=1.8.0",
 ]

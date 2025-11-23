@@ -3,7 +3,7 @@ from loguru import logger
 from torchvision import datasets
 
 from src.config import load_config
-from src.ingest.dataloader import get_flower_dataloaders
+from src.ingest.dataloader import get_cifar10_dataloaders
 
 
 def main() -> None:
@@ -22,13 +22,12 @@ def main() -> None:
         logger.error(f"❌ Could not create data directory: {e}")
         raise
 
-    # Download Flowers102 dataset
+    # Download CIFAR-10 dataset
     try:
-        logger.info("📥 Downloading Flowers102 dataset...")
-        datasets.Flowers102(root=data_dir, split="train", download=True)
-        datasets.Flowers102(root=data_dir, split="val", download=True)
-        datasets.Flowers102(root=data_dir, split="test", download=True)
-        logger.info(f"✅ Dataset downloaded to: {data_dir}")
+        logger.info("📥 Downloading CIFAR-10 dataset...")
+        datasets.CIFAR10(root=data_dir, train=True, download=True)
+        datasets.CIFAR10(root=data_dir, train=False, download=True)
+        logger.info(f"✅ CIFAR-10 downloaded to: {data_dir}")
     except Exception as e:
         logger.error(f"❌ Could not download dataset: {e}")
         raise
@@ -36,7 +35,7 @@ def main() -> None:
     # Create dataloaders
     try:
         logger.info("🚚 Creating dataloaders...")
-        train_loader, val_loader, test_loader = get_flower_dataloaders(config=data_cfg)
+        train_loader, val_loader, test_loader = get_cifar10_dataloaders(config=data_cfg)
         logger.info(f"🔢 Train samples: {len(train_loader.dataset)}")
         logger.info(f"🔢 Validation samples: {len(val_loader.dataset)}")
         logger.info(f"🔢 Test samples: {len(test_loader.dataset)}")
