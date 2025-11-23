@@ -2,7 +2,7 @@
 data_dir = "./data/cifar10"
 batch_size = 32
 val_split = 0.2
-test_split = 0.2
+test_split = 1
 img_size = 128
 num_workers = 0
 
