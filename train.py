@@ -23,7 +23,6 @@ def main() -> None:
 
     # ---- MLflow ----
     setup_mlflow(log_cfg.get("experiment_name", "CIFAR-10_experiment"))
-    mlflow.set_tag("developer", log_cfg.get("developer", "unknown"))
 
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     base_logdir = Path(log_cfg.get("log_dir", "logs"))
@@ -53,6 +52,9 @@ def main() -> None:
 
     # ---- Start MLflow run ----
     with mlflow.start_run():
+
+        mlflow.set_tag("model", log_cfg.get("model", "unknown"))
+        mlflow.set_tag("developer", log_cfg.get("developer", "unknown"))
 
         # Log hyperparameters
         mlflow.log_param("batch_size", data_cfg["batch_size"])
