@@ -30,5 +30,5 @@ checkpoint_dir = "models"
 save_interval = 1
 report_types = ["TOML", "MLFLOW"]
 experiment_name = "testing"
-model = "dropout_0.2"
+model = "dropout"
 developer = "Marcello"
