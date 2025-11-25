@@ -124,4 +124,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    runs = 3  # Amount of times to run the training
+    for i in range(1, runs + 1):
+        logger.info(f"🚀 Starting run {i}/{runs}")
+        main()
