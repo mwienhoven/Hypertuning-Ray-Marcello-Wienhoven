@@ -93,6 +93,7 @@ def main() -> None:
 
         # ---- Save final model ----
         ckpt_dir = Path(log_cfg.get("checkpoint_dir", "models"))
+        ckpt_dir = ckpt_dir.expanduser().resolve()
         ckpt_dir.mkdir(parents=True, exist_ok=True)
 
         model_path = ckpt_dir / f"{timestamp}_model.pt"
@@ -107,7 +108,10 @@ def main() -> None:
             toml.dump(model_cfg, f)
 
         # Log as MLflow artifact
-        mlflow.log_artifact(str(model_path), artifact_path="pytorch_models")
+        if model_path.exists():
+            mlflow.log_artifact(str(model_path), artifact_path="pytorch_models")
+        else:
+            logger.warning(f"Model file not found at {model_path}")
 
         # ---- Log final test loss ----
         mlflow.log_metric("test_loss", trainer.test_loss)
