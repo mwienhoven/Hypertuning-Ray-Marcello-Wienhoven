@@ -1,7 +1,7 @@
 [project]
 name = "hypertuning-ray-marcello-wienhoven"
 version = "0.1.0"
-description = "A flower classification model with hypertuning (without Ray on Windows)."
+description = "A classification model hyperparameter tuning project using Ray Tune and PyTorch for the CIFAR-10 dataset."
 authors = [
     { name = "Marcello Wienhoven", email = "M.Wienhoven@student.han.nl" }
 ]
