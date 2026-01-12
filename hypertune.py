@@ -19,8 +19,8 @@ from mltrainer import Trainer, TrainerSettings, metrics
 # -------------------------------
 # GLOBAL SETTINGS
 # -------------------------------
-NUM_SAMPLES = 10  # Number of Ray Tune trials
-MAX_EPOCHS = 1  # Max epochs per trial
+NUM_SAMPLES = 200  # Number of Ray Tune trials
+MAX_EPOCHS = 10  # Max epochs per trial
 RAY_TMPDIR = Path("C:/ray_temp").resolve()
 
 RAY_TMPDIR.mkdir(parents=True, exist_ok=True)

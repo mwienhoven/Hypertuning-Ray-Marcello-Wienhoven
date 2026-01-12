@@ -115,4 +115,11 @@ search_space = {
 
 200 samples of max 10 epochs were ran using Ray (using HyperOpt). The result were analyzed by contour heat plots. These are saved in the /img subfolder.
 
+The best hyperparameters found by the hypertuning are the following:
+```python
+Best hyperparameters found: {'filters': 128, 'units1': 256, 'units2': 128, 'num_layers': 3, 'kernel_size': 3, 'dropout': 0.0013762359667005425}
+```
+
+The heat plots of the 200 trials are visualized in the img/20260112_205622 folder. 
+
 ## Best model
