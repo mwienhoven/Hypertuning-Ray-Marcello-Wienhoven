@@ -1,26 +1,26 @@
 [data]
 data_dir = "./data/cifar10"
-batch_size = 64
-val_split = 0.2
+batch_size = 32
+val_split = 0.25
 test_split = 1
 img_size = 32
 num_workers = 0
 
 [model]
-filters = 64
-num_layers = 3
+filters = 32
+num_layers = 2
 kernel_size = 3
 maxpool = 2
-units1 = 128
-units2 = 64
+units1 = 64
+units2 = 32
 dropout = 0.2
 num_classes = 10
 
 [train]
-learning_rate = 0.01
-epochs = 3
+learning_rate = 0.001
+epochs = 5
 optimizer = "adam"
-train_steps = 100
+train_steps = 80
 valid_steps = 40
 logdir = "logs"
 
@@ -29,6 +29,6 @@ logdir = "logs"
 checkpoint_dir = "models"
 save_interval = 1
 report_types = ["TOML", "MLFLOW"]
-experiment_name = "testing"
+experiment_name = "original model"
 model = "original_model"
 developer = "Marcello"

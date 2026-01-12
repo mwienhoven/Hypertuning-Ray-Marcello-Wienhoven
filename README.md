@@ -27,7 +27,7 @@ uv cache clean
 Run the command:
 
 ```bash
-mlflow server --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 5000
+python -m mlflow ui --backend-store-uri sqlite:///mlflow.db --host 127.0.0.1 --port 5000
 ```
 
 ## Using the code
@@ -64,4 +64,3 @@ Some manual test will be ran before hypertuning to gain insights for optimal sea
 ### Number of layers
 ### Kernel size
 ### Dropout
-### Learning rate
