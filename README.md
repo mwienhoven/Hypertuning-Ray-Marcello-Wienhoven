@@ -90,3 +90,5 @@ When a kernel size of 2 is used, the model achieved a highest accuracy of 0.41. 
 
 ### Dropout
 The original model used a dropout of 0.2.
+
+When a dropout of 0.0 is used, the model achieved a highest accuracy of 0.44. When a dropout of 0.4 is used, the model achieved a highest accuracy of 0.34. When a dropout of 0.7 is used, the model achieved a highest accuracy of 0.34. When a dropout of 1.0 is used, the model achieved a highest accuracy of 0.16. The last one was a test for myself, because a dropout of 1.0 is strange and not practical.
