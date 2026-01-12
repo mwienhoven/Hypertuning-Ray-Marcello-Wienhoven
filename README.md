@@ -86,5 +86,7 @@ When 1 layer is used, the model achieved a highest accuracy of 0.50. When 3 laye
 ### Kernel size
 The original model used a kernel size of 3.
 
+When a kernel size of 2 is used, the model achieved a highest accuracy of 0.41. When a kernel size of 4 is used, the model achieved a highest accuracy of 0.50. When a kernel size of 5 is used, the model achieved a highest accuracy of 0.44.
+
 ### Dropout
 The original model used a dropout of 0.2.

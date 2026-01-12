@@ -9,7 +9,7 @@ num_workers = 0
 [model]
 filters = 32
 num_layers = 2
-kernel_size = 3
+kernel_size = 5
 maxpool = 2
 units1 = 64
 units2 = 32
@@ -29,6 +29,6 @@ logdir = "logs"
 checkpoint_dir = "models"
 save_interval = 1
 report_types = ["TOML", "MLFLOW"]
-experiment_name = "kernel_size"
-model = "2_kernel_size"
+experiment_name = "kernel_sizes"
+model = "5_kernel_size"
 developer = "Marcello"
