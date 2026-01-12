@@ -64,8 +64,14 @@ The original model, with the settings from DONT_CHANGE_orig_training.toml, achie
 ### Filters
 The original model used 32 filters.
 
+When 64 filters are used, the model achieved a highest accuracy of 0.50. When 128 filters are used, the model achieved a highest accuracy of 0.53. When 256 filters are used, the model achieved a highest accuracy of 0.44.
+
+The filters are als saved in the original model experiment name by accident.
+
 ### Units of layer 1
-The original model used 64 units for layer 1.
+The original model used 64 units for layer 1. 
+
+When 32 units are used, the model achieved a highest accuracy of
 
 ### Units of layer 2
 The original model used 32 units for layer 2.
