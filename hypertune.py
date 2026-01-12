@@ -9,6 +9,9 @@ from ray.tune import CLIReporter
 from ray.tune.search.hyperopt import HyperOptSearch
 from ray.tune.schedulers import ASHAScheduler
 
+import os
+import sys
+
 from src.config import load_config
 from src.training.load_dataloader import load_dataloaders
 
@@ -18,6 +21,11 @@ from mltrainer import ReportTypes
 
 NUM_SAMPLES = 20
 MAX_EPOCHS = 10
+
+# Zet Ray tijdelijke directory naar een kort pad
+ray_temp_dir = Path("C:/ray_temp").resolve()
+ray_temp_dir.mkdir(parents=True, exist_ok=True)
+os.environ["RAY_TMPDIR"] = str(ray_temp_dir)
 
 
 def train_ray(tune_config: Dict) -> None:
@@ -98,6 +106,14 @@ def train_ray(tune_config: Dict) -> None:
 
 
 if __name__ == "__main__":
+    # Ensure Ray uses the exact python executable for worker processes.
+    # This avoids URL-encoding / path-quoting issues on Windows paths containing '&' or other chars.
+    os.environ.setdefault("RAY_PYTHON_EXECUTABLE", sys.executable)
+
+    # Also set a short temp dir for Ray to avoid long paths with special characters
+    # (we already set RAY_TMPDIR above, keep it consistent)
+    os.environ.setdefault("RAY_TMPDIR", str(ray_temp_dir))
+
     ray.init()
 
     tune_dir = Path("logs/ray").resolve()
@@ -136,6 +152,7 @@ if __name__ == "__main__":
         scheduler=scheduler,
         verbose=1,
         resources_per_trial={"cpu": 2, "gpu": 1 if torch.cuda.is_available() else 0},
+        trial_dirname_creator=lambda trial: f"trial_{trial.trial_id}",
     )
 
     print("Best hyperparameters found were: ", analysis.best_config)

@@ -6,6 +6,20 @@ The repository for assignment 4-hypertuning-ray for the Portfolio-Marcello-Wienh
 The dataset used in this repository can be found in the 
 [**CIFAR-10 dataset**](https://www.cs.toronto.edu/~kriz/cifar.html). The dataset used is the CIFAR-10 classification dataset. This dataset contains 60000 samples (50000 training samples and 10000 test samples). There are 10 classes (airplanes, automobiles, birds, cats, deers, dogs, frogs, horses, ships, and trucks.) The images are relatively small also with a 32x32 pixel size that helps with the computational speed.
 
+## Sync the environment
+Run the command:
+
+```bash
+uv sync
+```
+
+Also to clear the uv cache, run the following command
+
+```bash
+uv cache clean
+```
+
+
 ## Open the MLFlow Dashboard
 Run the command:
 
@@ -25,3 +39,17 @@ uv run load_data.py
 ```
 
 The data is downloaded with a batch size of 32, and validation split of 0.2. This results in 40000 training samples, 10000 validation samples, and 10000 test samples.
+
+### Training the data (testing manually)
+The model in src/models/cnn.py is used for the training. The settings are written in config.toml. To train the model given the model and the settings, run the following command.
+
+```bash
+uv run train.py
+```
+
+### Hypertuning
+The hypertuning can be done using the following command:
+
+```bash
+uv run hypertune.py
+```
