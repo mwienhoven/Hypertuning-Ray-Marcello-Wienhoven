@@ -56,7 +56,7 @@ uv run hypertune.py
 ```
 
 ## Report
-Some manual test will be ran before hypertuning to gain insights for optimal search spaces. The test will be described in the following subsections.
+Some manual test will be ran before hypertuning to gain insights for optimal search spaces. The test will be described in the following subsections. The baseline settings of training are saved in DONT_CHANGE_orig_training.toml
 
 ### Filters
 ### Units of layer 1
@@ -65,4 +65,3 @@ Some manual test will be ran before hypertuning to gain insights for optimal sea
 ### Kernel size
 ### Dropout
 ### Learning rate
-### Optimizer

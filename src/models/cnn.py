@@ -10,7 +10,8 @@ class CNN(nn.Module):
         units1: int,
         units2: int,
         input_size: tuple,
-        num_classes: int = 102,
+        num_classes: int = 10,
+        dropout: float = 0.2,
     ) -> None:
         super().__init__()
         self.in_channels = input_size[1]  # input_size: (batch, channels, height, width)
@@ -18,18 +19,22 @@ class CNN(nn.Module):
         self.units1 = units1
         self.units2 = units2
         self.input_size = input_size
+        self.dropout = dropout
 
         # Input vector size is (batch_size, in_channels, height, width)
 
         # Convolutional block
         self.convs = nn.Sequential(
             nn.Conv2d(self.in_channels, filters, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(filters),
             nn.ReLU(),
             nn.MaxPool2d(2),
             nn.Conv2d(filters, filters, kernel_size=3, stride=1, padding=0),
+            nn.BatchNorm2d(filters),
             nn.ReLU(),
             nn.MaxPool2d(2),
-            nn.Conv2d(filters, filters, kernel_size=3, stride=1, padding=0),
+            nn.Conv2d(filters, filters, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(filters),
             nn.ReLU(),
             nn.MaxPool2d(2),
         )
@@ -38,18 +43,18 @@ class CNN(nn.Module):
         activation_map_size = self._get_activation_map_size(input_size)
         logger.info(f"Activation map size after convs: {activation_map_size}")
 
-        # Global average pooling to reduce to (batch, filters, 1, 1)
-        self.global_pool = nn.AvgPool2d(activation_map_size)
+        # Global adaptive average pooling
+        self.global_pool = nn.AdaptiveAvgPool2d(1)
 
         # Fully connected block
         self.fc = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(
-                filters * activation_map_size[0] * activation_map_size[1], units1
-            ),
+            nn.Linear(filters, units1),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(units1, units2),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(units2, num_classes),
         )
 
