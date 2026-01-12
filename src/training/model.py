@@ -20,7 +20,7 @@ def build_model(
         matrixshape=(img_size, img_size),
         batchsize=batch_size,
         input_channels=3,  # RGB
-        hidden=model_cfg["filters"],
+        filters=model_cfg["filters"],
         kernel_size=model_cfg.get("kernel_size", 3),
         maxpool=model_cfg.get("maxpool", 2),
         num_layers=model_cfg.get("num_layers", 3),

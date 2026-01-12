@@ -17,7 +17,7 @@ dropout = 0.2
 num_classes = 10
 
 [train]
-learning_rate = 0.001
+learning_rate = 0.01
 epochs = 3
 optimizer = "adam"
 train_steps = 100
@@ -29,6 +29,6 @@ logdir = "logs"
 checkpoint_dir = "models"
 save_interval = 1
 report_types = ["TOML", "MLFLOW"]
-experiment_name = "manual_testing"
+experiment_name = "testing"
 model = "original_model"
 developer = "Marcello"

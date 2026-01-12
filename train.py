@@ -10,7 +10,8 @@ from src.training.mlflow_utils import setup_mlflow, log_model
 from src.training.train_utils import create_trainer
 from src.config import load_config
 from src.training.load_dataloader import load_dataloaders
-from mltrainer.imagemodels import CNNConfig, CNNblocks
+from src.models.cnn import CNN
+from mltrainer.imagemodels import CNNConfig
 
 
 def main() -> None:
@@ -73,7 +74,19 @@ def main() -> None:
             num_classes=model_cfg["num_classes"],
         )
 
-        model = CNNblocks(cnn_config)
+        model = CNN(
+            filters=model_cfg["filters"],
+            units1=model_cfg["units1"],
+            units2=model_cfg["units2"],
+            input_size=(
+                data_cfg["batch_size"],
+                3,
+                data_cfg["img_size"],
+                data_cfg["img_size"],
+            ),
+            num_classes=model_cfg.get("num_classes", 10),
+            dropout=model_cfg.get("dropout", 0.2),
+        )
         model.to(device)
         logger.info(f"Model initialized: {cnn_config}")
 

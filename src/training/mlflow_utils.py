@@ -3,15 +3,18 @@ import mlflow
 from loguru import logger
 
 
-def setup_mlflow(
-    experiment_name: str, tracking_uri: str = "sqlite:///mlflow.db"
-) -> None:
+def setup_mlflow(experiment_name: str, tracking_uri: str | None = None) -> None:
     """Setup the mlflow environment
 
     Args:
         experiment_name (str): Name of the MLflow experiment.
         tracking_uri (str): Tracking URI for MLflow. Defaults to "sqlite:///mlflow.db".
     """
+
+    if tracking_uri is None:
+        tracking_path = Path("mlflow.db").resolve()
+        tracking_uri = f"sqlite:///{tracking_path}"
+
     mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(experiment_name)
     logger.info(f"MLflow experiment '{experiment_name}' set with URI '{tracking_uri}'")

@@ -1,5 +1,7 @@
 from pathlib import Path
 from typing import Dict
+import os
+import sys
 
 import torch
 from loguru import logger
@@ -9,46 +11,45 @@ from ray.tune import CLIReporter
 from ray.tune.search.hyperopt import HyperOptSearch
 from ray.tune.schedulers import ASHAScheduler
 
-import os
-import sys
-
 from src.config import load_config
 from src.training.load_dataloader import load_dataloaders
-
-# using direct TrainerSettings/Trainer from mltrainer in this script
 from mltrainer.imagemodels import CNNConfig, CNNblocks
-from mltrainer import ReportTypes
+from mltrainer import Trainer, TrainerSettings, ReportTypes, metrics
 
-NUM_SAMPLES = 20
-MAX_EPOCHS = 10
+NUM_SAMPLES = 2
+MAX_EPOCHS = 1
 
-# Zet Ray tijdelijke directory naar een kort pad
-ray_temp_dir = Path("C:/ray_temp").resolve()
-ray_temp_dir.mkdir(parents=True, exist_ok=True)
-os.environ["RAY_TMPDIR"] = str(ray_temp_dir)
+# Paths
+BASE_DIR = Path(__file__).parent.resolve()
+CONFIG_PATH = BASE_DIR / "config.toml"
+RAY_TMPDIR = Path("C:/ray_temp").resolve()
+RAY_TMPDIR.mkdir(parents=True, exist_ok=True)
+os.environ["RAY_TMPDIR"] = str(RAY_TMPDIR)
+os.environ["RAY_PYTHON_EXECUTABLE"] = sys.executable
 
 
 def train_ray(tune_config: Dict) -> None:
     # Load base config
-    cfg = load_config("config.toml")
+    cfg = load_config(CONFIG_PATH)
     data_cfg = cfg["data"].copy()
     model_cfg = cfg["model"].copy()
     train_cfg = cfg["train"].copy()
     log_cfg = cfg.get("logging", {})
 
-    # Override model/data hyperparameters from Ray
-    model_cfg.update({k: v for k, v in tune_config.items() if k in model_cfg})
-    if "batch_size" in tune_config:
-        data_cfg["batch_size"] = int(tune_config["batch_size"])
+    # Override with hyperparameters from Ray
+    for key, val in tune_config.items():
+        if key in model_cfg:
+            model_cfg[key] = val
+        if key == "batch_size":
+            data_cfg["batch_size"] = int(val)
 
     # Load dataloaders
     train_loader, val_loader, test_loader = load_dataloaders({"data": data_cfg})
 
-    # Device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device {device}")
 
-    # Build model using mltrainer imagemodels
+    # Build model with dropout
     cnn_config = CNNConfig(
         matrixshape=(data_cfg["img_size"], data_cfg["img_size"]),
         batchsize=data_cfg["batch_size"],
@@ -61,30 +62,17 @@ def train_ray(tune_config: Dict) -> None:
     )
     model = CNNblocks(cnn_config).to(device)
 
-    # Prepare trainer using create_trainer but ensure Ray reporting
-    # create_trainer wraps mltrainer.Trainer; we will build settings via create_trainer
-    # but override report types by passing a modified log_cfg if necessary.
-    # create_trainer currently uses TOML+MLFLOW by default, so construct TrainerSettings
-    # directly to ensure ReportTypes.RAY is used.
-    from mltrainer import TrainerSettings, Trainer, metrics
-
+    # Trainer
     acc = metrics.Accuracy()
-
-    # Determine train/valid steps (only pass if positive integer)
-    train_steps = train_cfg.get("train_steps", 0)
-    valid_steps = train_cfg.get("valid_steps", 0)
     settings_kwargs = dict(
         epochs=train_cfg.get("epochs", MAX_EPOCHS),
         metrics=[acc],
         logdir=Path(log_cfg.get("logdir", "logs")),
-        reporttypes=[ReportTypes.RAY],
+        reporttypes=[ReportTypes.RAY],  # send metrics to Ray
         checkpoint_dir=Path(log_cfg.get("checkpoint_dir", "models")),
+        train_steps=train_cfg.get("train_steps", 0),
+        valid_steps=train_cfg.get("valid_steps", 0),
     )
-    if isinstance(train_steps, int) and train_steps > 0:
-        settings_kwargs["train_steps"] = int(train_steps)
-    if isinstance(valid_steps, int) and valid_steps > 0:
-        settings_kwargs["valid_steps"] = int(valid_steps)
-
     trainersettings = TrainerSettings(**settings_kwargs)
 
     trainer = Trainer(
@@ -98,25 +86,24 @@ def train_ray(tune_config: Dict) -> None:
         device=str(device),
     )
 
-    # Run training loop (mltrainer will report to Ray if ReportTypes.RAY is set)
+    # Run training
     trainer.loop()
 
-    # Final report to Ray (in case mltrainer didn't send final metric)
+    # Report final metric to Ray
     tune.report(test_loss=getattr(trainer, "test_loss", None))
 
 
 if __name__ == "__main__":
-    # Ensure Ray uses the exact python executable for worker processes.
-    # This avoids URL-encoding / path-quoting issues on Windows paths containing '&' or other chars.
-    os.environ.setdefault("RAY_PYTHON_EXECUTABLE", sys.executable)
+    ray.init(ignore_reinit_error=True)
 
-    # Also set a short temp dir for Ray to avoid long paths with special characters
-    # (we already set RAY_TMPDIR above, keep it consistent)
-    os.environ.setdefault("RAY_TMPDIR", str(ray_temp_dir))
+    search_space = {
+        "filters": tune.choice([16, 32, 64, 128]),
+        "units1": tune.randint(64, 256),
+        "units2": tune.randint(16, 128),
+        "num_layers": tune.randint(2, 4),
+        "kernel_size": tune.choice([3, 5]),
+    }
 
-    ray.init()
-
-    tune_dir = Path("logs/ray").resolve()
     search = HyperOptSearch(metric="test_loss", mode="min")
     scheduler = ASHAScheduler(
         metric="test_loss",
@@ -126,34 +113,23 @@ if __name__ == "__main__":
         reduction_factor=2,
     )
 
-    # Search space — keep names consistent with config.toml model keys
-    config = {
-        "filters": tune.choice([16, 32, 64, 128]),
-        "units1": tune.randint(64, 256),
-        "units2": tune.randint(16, 128),
-        "dropout": tune.uniform(0.0, 0.5),
-        "num_layers": tune.randint(2, 4),
-        "kernel_size": tune.choice([3, 5]),
-    }
+    reporter = CLIReporter(metric_columns=["test_loss"])
 
-    reporter = CLIReporter(
-        metric_columns=["test_loss"]
-    )  # mltrainer reports 'test_loss'
+    tune_dir = BASE_DIR / "logs" / "ray"
+    tune_dir.mkdir(parents=True, exist_ok=True)
 
     analysis = tune.run(
         train_ray,
-        config=config,
-        # metric="test_loss",
-        # mode="min",
-        progress_reporter=reporter,
-        storage_path=str(tune_dir),
+        config=search_space,
         num_samples=NUM_SAMPLES,
         search_alg=search,
         scheduler=scheduler,
-        verbose=1,
+        progress_reporter=reporter,
+        storage_path=str(tune_dir),
         resources_per_trial={"cpu": 2, "gpu": 1 if torch.cuda.is_available() else 0},
+        verbose=1,
         trial_dirname_creator=lambda trial: f"trial_{trial.trial_id}",
     )
 
-    print("Best hyperparameters found were: ", analysis.best_config)
+    print("✅ Best hyperparameters found:", analysis.best_config)
     ray.shutdown()
