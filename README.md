@@ -39,7 +39,7 @@ The data can be loaded with the command
 uv run load_data.py
 ```
 
-The data is downloaded with a batch size of 32, and validation split of 0.2. This results in 40000 training samples, 10000 validation samples, and 10000 test samples.
+The data is downloaded with a batch size of 128, and validation split of 0.25. This results in 37500 training samples, 12500 validation samples, and 10000 test samples.
 
 ### Training the data (testing manually)
 The model in src/models/cnn.py is used for the training. The settings are written in config.toml. To train the model given the model and the settings, run the following command.
@@ -63,7 +63,7 @@ uv run ray_analysis.py
 ```
 
 ## Manual testing
-Some manual test will be ran before hypertuning to gain insights for optimal search spaces. The test will be described in the following subsections. The baseline settings of training are saved in DONT_CHANGE_orig_training.toml
+Some manual test will be ran before hypertuning to gain insights for optimal search spaces. The test will be described in the following subsections. The baseline settings of training are saved in DONT_CHANGE_orig_training.toml. For every setting, three models will be ran.
 
 ### Original model
 The original model, with the settings from DONT_CHANGE_orig_training.toml, achieved a highest accuracy of 0.53.
@@ -101,7 +101,7 @@ The original model used a dropout of 0.2.
 When a dropout of 0.0 is used, the model achieved a highest accuracy of 0.44. When a dropout of 0.4 is used, the model achieved a highest accuracy of 0.34. When a dropout of 0.7 is used, the model achieved a highest accuracy of 0.34. When a dropout of 1.0 is used, the model achieved a highest accuracy of 0.16. The last one was a test for myself, because a dropout of 1.0 is strange and not practical.
 
 ## Hyperparameter tuning
-Based on the test ran above, the hyperparameter tuning ranges were set to:
+Based on the tests ran above, the hyperparameter tuning ranges were set to:
 ```python
 search_space = {
         "filters": tune.choice([16, 32, 64, 128]),
@@ -120,10 +120,10 @@ The best hyperparameters found by the hypertuning are the following:
 Best hyperparameters found: {'filters': 128, 'units1': 256, 'units2': 128, 'num_layers': 3, 'kernel_size': 3, 'dropout': 0.0013762359667005425}
 ```
 
-The heat plots of the 200 trials are visualized in the img/20260112_205622 folder. 
+The heat plots of the 200 trials are visualized in the img/20260112_205622 subfolder. 
 
 ## Best model
-Based of the best hyperparameters found in the hypertuning, a final model is trained using the train.py. The hyperparameters are set to the found best hyperparameters. Three models are ran with these settings. The models is ran for 100 epochs (including early stopping at 10 epochs).
+Based of the best hyperparameters found in the hypertuning, a final model is trained using the train.py. The hyperparameters are set to the found best hyperparameters. Three models are ran with these settings. The models were ran for 100 epochs (including early stopping at 10 epochs).
 
 The final settings are as follows:
 ```toml
