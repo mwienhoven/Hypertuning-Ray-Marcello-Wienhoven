@@ -8,13 +8,13 @@ num_workers = 0
 
 [model]
 filters = 64
-units1 = 128
-units2 = 64
-num_classes = 10
+num_layers = 3
 kernel_size = 3
 maxpool = 2
-num_layers = 3
+units1 = 128
+units2 = 64
 dropout = 0.2
+num_classes = 10
 
 [train]
 learning_rate = 0.001
