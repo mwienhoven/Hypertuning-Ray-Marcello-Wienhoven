@@ -58,9 +58,23 @@ uv run hypertune.py
 ## Report
 Some manual test will be ran before hypertuning to gain insights for optimal search spaces. The test will be described in the following subsections. The baseline settings of training are saved in DONT_CHANGE_orig_training.toml
 
+### Original model
+The original model, with the settings from DONT_CHANGE_orig_training.toml, achieved a highest accuracy of 0.53.
+
 ### Filters
+The original model used 32 filters.
+
 ### Units of layer 1
+The original model used 64 units for layer 1.
+
 ### Units of layer 2
+The original model used 32 units for layer 2.
+
 ### Number of layers
+The original model used 2 number of layers.
+
 ### Kernel size
+The original model used a kernel size of 3.
+
 ### Dropout
+The original model used a dropout of 0.2.
