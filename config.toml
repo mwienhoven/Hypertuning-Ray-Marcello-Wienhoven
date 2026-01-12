@@ -12,7 +12,7 @@ num_layers = 2
 kernel_size = 3
 maxpool = 2
 units1 = 64
-units2 = 16
+units2 = 32
 dropout = 0.2
 num_classes = 10
 
@@ -30,5 +30,5 @@ checkpoint_dir = "models"
 save_interval = 1
 report_types = ["TOML", "MLFLOW"]
 experiment_name = "units_layer_2"
-model = "16_units"
+model = "128_units"
 developer = "Marcello"

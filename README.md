@@ -76,6 +76,8 @@ When 32 units are used, the model achieved a highest accuracy of 0.59. When 128 
 ### Units of layer 2
 The original model used 32 units for layer 2.
 
+When 16 units are used, the model achieved a highest accuracy of 0.44. When 64 units are used, the model achieved a highest accuracy of 0.50. When 128 units are used, the model achieved a highest accuracy of 0.53.
+
 ### Number of layers
 The original model used 2 number of layers.
 
