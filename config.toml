@@ -7,18 +7,18 @@ img_size = 32
 num_workers = 0
 
 [model]
-filters = 32
-num_layers = 2
+filters = 128
+num_layers = 3
 kernel_size = 3
 maxpool = 2
-units1 = 64
-units2 = 32
-dropout = 0.2
+units1 = 256
+units2 = 128
+dropout = 0.0013762359667005425
 num_classes = 10
 
 [train]
 learning_rate = 0.001
-epochs = 1
+epochs = 100
 optimizer = "adam"
 train_steps = 100
 valid_steps = 50
@@ -29,6 +29,6 @@ logdir = "logs"
 checkpoint_dir = "models"
 save_interval = 1
 report_types = ["TOML", "MLFLOW"]
-experiment_name = "dropout"
-model = "1.0_dropout"
+experiment_name = "best_model"
+model = "best_model"
 developer = "Marcello"

@@ -123,3 +123,44 @@ Best hyperparameters found: {'filters': 128, 'units1': 256, 'units2': 128, 'num_
 The heat plots of the 200 trials are visualized in the img/20260112_205622 folder. 
 
 ## Best model
+Based of the best hyperparameters found in the hypertuning, a final model is trained using the train.py. The hyperparameters are set to the found best hyperparameters. Three models are ran with these settings. The models is ran for 100 epochs (including early stopping at 10 epochs).
+
+The final settings are as follows:
+```toml
+[data]
+data_dir = "./data/cifar10"
+batch_size = 128
+val_split = 0.25
+test_split = 1
+img_size = 32
+num_workers = 0
+
+[model]
+filters = 128
+num_layers = 3
+kernel_size = 3
+maxpool = 2
+units1 = 256
+units2 = 128
+dropout = 0.0013762359667005425
+num_classes = 10
+
+[train]
+learning_rate = 0.001
+epochs = 100
+optimizer = "adam"
+train_steps = 100
+valid_steps = 50
+logdir = "logs"
+
+[logging]
+logdir = "logs"
+checkpoint_dir = "models"
+save_interval = 1
+report_types = ["TOML", "MLFLOW"]
+experiment_name = "best_model"
+model = "best_model"
+developer = "Marcello"
+```
+
+The three models achieved an accuracy of 0.71, 0.80, and 0.74. These models were early stopped after around 20 to 30 epochs.
