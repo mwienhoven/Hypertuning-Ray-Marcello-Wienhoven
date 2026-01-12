@@ -13,30 +13,38 @@ from ray.tune.schedulers import ASHAScheduler
 
 from src.config import load_config
 from src.training.load_dataloader import load_dataloaders
-from mltrainer.imagemodels import CNNConfig, CNNblocks
-from mltrainer import Trainer, TrainerSettings, ReportTypes, metrics
+from src.models.cnn import CNN
+from mltrainer import Trainer, TrainerSettings, metrics
 
-NUM_SAMPLES = 2
-MAX_EPOCHS = 1
-
-# Paths
-BASE_DIR = Path(__file__).parent.resolve()
-CONFIG_PATH = BASE_DIR / "config.toml"
+# -------------------------------
+# GLOBAL SETTINGS
+# -------------------------------
+NUM_SAMPLES = 10  # Number of Ray Tune trials
+MAX_EPOCHS = 1  # Max epochs per trial
 RAY_TMPDIR = Path("C:/ray_temp").resolve()
+
 RAY_TMPDIR.mkdir(parents=True, exist_ok=True)
 os.environ["RAY_TMPDIR"] = str(RAY_TMPDIR)
 os.environ["RAY_PYTHON_EXECUTABLE"] = sys.executable
 
+BASE_DIR = Path(__file__).parent.resolve()
+CONFIG_PATH = BASE_DIR / "config.toml"
 
+
+# -------------------------------
+# TRAIN FUNCTION USED BY RAY TUNE
+# -------------------------------
 def train_ray(tune_config: Dict) -> None:
-    # Load base config
+    # Load base configuration
     cfg = load_config(CONFIG_PATH)
+
+    # Copy sections so Ray can override them
     data_cfg = cfg["data"].copy()
     model_cfg = cfg["model"].copy()
     train_cfg = cfg["train"].copy()
     log_cfg = cfg.get("logging", {})
 
-    # Override with hyperparameters from Ray
+    # Override model params with Ray Tune suggestions
     for key, val in tune_config.items():
         if key in model_cfg:
             model_cfg[key] = val
@@ -45,79 +53,130 @@ def train_ray(tune_config: Dict) -> None:
 
     # Load dataloaders
     train_loader, val_loader, test_loader = load_dataloaders({"data": data_cfg})
+    trainsteps = len(train_loader)
+    validsteps = len(val_loader)
+    trainstreamer = iter(train_loader)
+    validstreamer = iter(val_loader)
 
+    # Device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device {device}")
 
-    # Build model with dropout
-    cnn_config = CNNConfig(
-        matrixshape=(data_cfg["img_size"], data_cfg["img_size"]),
-        batchsize=data_cfg["batch_size"],
-        input_channels=3,
-        hidden=model_cfg.get("filters", 64),
-        kernel_size=model_cfg.get("kernel_size", 3),
-        maxpool=model_cfg.get("maxpool", 2),
-        num_layers=model_cfg.get("num_layers", 3),
+    # -------------------------------
+    # BUILD MODEL
+    # -------------------------------
+    model = CNN(
+        filters=model_cfg.get("filters", 64),
+        units1=model_cfg.get("units1", 128),
+        units2=model_cfg.get("units2", 64),
+        input_size=(
+            data_cfg["batch_size"],
+            3,
+            data_cfg["img_size"],
+            data_cfg["img_size"],
+        ),
         num_classes=model_cfg.get("num_classes", 10),
-    )
-    model = CNNblocks(cnn_config).to(device)
+        dropout=model_cfg.get("dropout", 0.2),
+    ).to(device)
 
-    # Trainer
-    acc = metrics.Accuracy()
-    settings_kwargs = dict(
-        epochs=train_cfg.get("epochs", MAX_EPOCHS),
-        metrics=[acc],
-        logdir=Path(log_cfg.get("logdir", "logs")),
-        reporttypes=[ReportTypes.RAY],  # send metrics to Ray
-        checkpoint_dir=Path(log_cfg.get("checkpoint_dir", "models")),
-        train_steps=train_cfg.get("train_steps", 0),
-        valid_steps=train_cfg.get("valid_steps", 0),
-    )
-    trainersettings = TrainerSettings(**settings_kwargs)
+    optimizer = torch.optim.Adam(model.parameters(), lr=train_cfg.get("lr", 1e-3))
+    loss_fn = torch.nn.CrossEntropyLoss()
+    acc_metric = metrics.Accuracy()
 
-    trainer = Trainer(
-        model=model,
-        settings=trainersettings,
-        loss_fn=torch.nn.CrossEntropyLoss(),
-        optimizer=torch.optim.Adam,
-        traindataloader=train_loader,
-        validdataloader=val_loader,
-        scheduler=torch.optim.lr_scheduler.ReduceLROnPlateau,
-        device=str(device),
-    )
+    # -------------------------------
+    # TRAINING LOOP
+    # -------------------------------
+    for _ in range(train_cfg.get("epochs", MAX_EPOCHS)):
+        model.train()
+        train_loss = 0.0
+        for X, y in train_loader:
+            X, y = X.to(device), y.to(device)
+            optimizer.zero_grad()
+            outputs = model(X)
+            loss = loss_fn(outputs, y)
+            loss.backward()
+            optimizer.step()
+            train_loss += loss.item()
 
-    # Run training
-    trainer.loop()
+        # -------------------------------
+        # VALIDATION LOOP
+        # -------------------------------
+        model.eval()
+        valid_loss = 0.0
+        all_preds = []
+        all_labels = []
+        with torch.no_grad():
+            for X, y in val_loader:
+                X, y = X.to(device), y.to(device)
+                outputs = model(X)
+                loss = loss_fn(outputs, y)
+                valid_loss += loss.item()
+                all_preds.append(outputs)
+                all_labels.append(y)
 
-    # Report final metric to Ray
-    tune.report(test_loss=getattr(trainer, "test_loss", None))
+        all_preds = torch.cat(all_preds)
+        all_labels = torch.cat(all_labels)
+
+        # Accuracy computation (safe fallback)
+        try:
+            accuracy = acc_metric(all_preds, all_labels)
+        except Exception:
+            if all_preds.ndim == 2:
+                preds = all_preds.argmax(dim=1)
+            else:
+                preds = all_preds.long()
+            preds = preds.cpu()
+            labels = all_labels.cpu()
+            accuracy = (preds == labels).float().mean().item()
+
+        # -------------------------------
+        # REPORT TO RAY TUNE
+        # -------------------------------
+        tune.report(
+            {
+                "train_loss": train_loss / trainsteps,
+                "valid_loss": valid_loss / validsteps,
+                "accuracy": accuracy,
+            }
+        )
 
 
+# -------------------------------
+# MAIN HYPERPARAMETER TUNING
+# -------------------------------
 if __name__ == "__main__":
     ray.init(ignore_reinit_error=True)
 
+    # -------------------------------
+    # SEARCH SPACE
+    # -------------------------------
     search_space = {
         "filters": tune.choice([16, 32, 64, 128]),
-        "units1": tune.randint(64, 256),
-        "units2": tune.randint(16, 128),
+        "units1": tune.choice([64, 128, 256]),
+        "units2": tune.choice([32, 64, 128]),
         "num_layers": tune.randint(2, 4),
         "kernel_size": tune.choice([3, 5]),
+        "dropout": tune.uniform(0.0, 0.5),
     }
 
-    search = HyperOptSearch(metric="test_loss", mode="min")
+    search = HyperOptSearch(metric="valid_loss", mode="min")
+
     scheduler = ASHAScheduler(
-        metric="test_loss",
+        metric="valid_loss",
         mode="min",
         max_t=MAX_EPOCHS,
         grace_period=1,
         reduction_factor=2,
     )
 
-    reporter = CLIReporter(metric_columns=["test_loss"])
+    reporter = CLIReporter(metric_columns=["valid_loss", "accuracy"])
 
     tune_dir = BASE_DIR / "logs" / "ray"
     tune_dir.mkdir(parents=True, exist_ok=True)
 
+    # -------------------------------
+    # RUN RAY TUNE
+    # -------------------------------
     analysis = tune.run(
         train_ray,
         config=search_space,
@@ -131,5 +190,7 @@ if __name__ == "__main__":
         trial_dirname_creator=lambda trial: f"trial_{trial.trial_id}",
     )
 
-    print("✅ Best hyperparameters found:", analysis.best_config)
+    best_config = analysis.get_best_config(metric="valid_loss", mode="min")
+    print("Best hyperparameters found:", best_config)
+
     ray.shutdown()
