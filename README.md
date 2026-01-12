@@ -71,7 +71,7 @@ The filters are als saved in the original model experiment name by accident.
 ### Units of layer 1
 The original model used 64 units for layer 1. 
 
-When 32 units are used, the model achieved a highest accuracy of
+When 32 units are used, the model achieved a highest accuracy of 0.59. When 128 units are used, the model achieved a highest accuracy of 0.47. When 256 units are used, the model achieved a highest accuracy of 0.56.
 
 ### Units of layer 2
 The original model used 32 units for layer 2.
