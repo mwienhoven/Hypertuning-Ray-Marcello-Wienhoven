@@ -79,7 +79,9 @@ The original model used 32 units for layer 2.
 When 16 units are used, the model achieved a highest accuracy of 0.44. When 64 units are used, the model achieved a highest accuracy of 0.50. When 128 units are used, the model achieved a highest accuracy of 0.53.
 
 ### Number of layers
-The original model used 2 number of layers.
+The original model used 2 layers.
+
+When 1 layer is used, the model achieved a highest accuracy of 0.50. When 3 layers are used, the model achieved a highest accuracy of 0.41. When 5 layers are used, the model achieved a highest accuracy of 0.50.
 
 ### Kernel size
 The original model used a kernel size of 3.
