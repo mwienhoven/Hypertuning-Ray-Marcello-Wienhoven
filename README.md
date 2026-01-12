@@ -164,3 +164,6 @@ developer = "Marcello"
 ```
 
 The three models achieved an accuracy of 0.71, 0.80, and 0.74. These models were early stopped after around 20 to 30 epochs.
+
+## Conclusion
+The best model obtained an accuracy of 0.80 predicting the classes for the CIFAR-10 dataset. This is a lot better than the 0.10, which will be theoretically obtained by random guessing (10 classes). 
