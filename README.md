@@ -55,7 +55,14 @@ The hypertuning can be done using the following command:
 uv run hypertune.py
 ```
 
-## Report
+### Ray analysis
+The ray analysis provides contour heat plots of the trials trained while hypertuning. The images are saved in the /img folder. The ray analysis can be performed using the following command:
+
+```bash
+uv run ray_analysis.py
+```
+
+## Manual testing
 Some manual test will be ran before hypertuning to gain insights for optimal search spaces. The test will be described in the following subsections. The baseline settings of training are saved in DONT_CHANGE_orig_training.toml
 
 ### Original model
@@ -92,3 +99,20 @@ When a kernel size of 2 is used, the model achieved a highest accuracy of 0.41. 
 The original model used a dropout of 0.2.
 
 When a dropout of 0.0 is used, the model achieved a highest accuracy of 0.44. When a dropout of 0.4 is used, the model achieved a highest accuracy of 0.34. When a dropout of 0.7 is used, the model achieved a highest accuracy of 0.34. When a dropout of 1.0 is used, the model achieved a highest accuracy of 0.16. The last one was a test for myself, because a dropout of 1.0 is strange and not practical.
+
+## Hyperparameter tuning
+Based on the test ran above, the hyperparameter tuning ranges were set to:
+```python
+search_space = {
+        "filters": tune.choice([16, 32, 64, 128]),
+        "units1": tune.choice([64, 128, 256]),
+        "units2": tune.choice([32, 64, 128]),
+        "num_layers": tune.randint(2, 4),
+        "kernel_size": tune.choice([3, 5]),
+        "dropout": tune.uniform(0.0, 0.5),
+    }
+```
+
+200 samples of max 10 epochs were ran using Ray (using HyperOpt). The result were analyzed by contour heat plots. These are saved in the /img subfolder.
+
+## Best model
